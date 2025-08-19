@@ -1,7 +1,7 @@
 # Brain
 > A multipurpose assistant
 
-[![Wakatime](WAKATIME)](WAKATIME_LINK) [![Patreon](https://img.shields.io/badge/Patreon-black?style=flat&logo=patreon)](https://patreon.com/Wixonic)
+[![Wakatime](https://wakatime.com/badge/github/Wixonic/Brain.svg)](https://wakatime.com/badge/github/Wixonic/Brain) [![Patreon](https://img.shields.io/badge/Patreon-black?style=flat&logo=patreon)](https://patreon.com/Wixonic)
 
 - [Support](https://github.com/Wixonic/Brain/blob/Default/.github/SUPPORT.md)
 - [Code of Conduct](https://github.com/Wixonic/Brain/blob/Default/.github/CODE_OF_CONDUCT.md)
