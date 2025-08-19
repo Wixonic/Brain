@@ -1,0 +1,27 @@
+{
+	"name": "brain",
+	"displayName": "Brain",
+	"description": "A multipurpose assistant",
+	"author": "Wixonic <contact@wixonic.fr> (https://wixonic.fr)",
+	"version": "0.1.0",
+	"license": "Wix Non-Commercial License",
+	"repository": "github:Wixonic/Brain",
+	"funding": {
+		"type": "patreon",
+		"url": "https://www.patreon.com/wixonic"
+	},
+	"main": "main.js",
+	"scripts": {
+		"start": "node ./main.js"
+	},
+	"engines": {
+		"node": "24"
+	},
+	"dependencies": {
+		"@wixonic/logger": "^1.1.0",
+		"ollama": "^0.5.17"
+	},
+	"devDependencies": {
+		"@types/node": "^24.3.0"
+	}
+}
