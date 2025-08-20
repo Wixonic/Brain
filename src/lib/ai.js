@@ -30,6 +30,13 @@ class AI extends EventTarget {
 
 		/** @type {import("@lancedb/lancedb").Connection?} */
 		this.db = null;
+
+		this.generateNewRequestData();
+	};
+
+	generateNewRequestData() {
+		this.perRequestData = {};
+		for (const tool of this.tools) this.perRequestData[tool.definition.function.name] = {};
 	};
 
 	async loadDB() {
@@ -112,15 +119,16 @@ class AI extends EventTarget {
 	async generate(options, callback) {
 		if (this.currentStream) {
 			this.currentStream.abort();
-			if (process.env.debug == "true") console.log(format("Aborted previous prompt.", "dim"));
+			if (process.env.debug == "true") process.stdout.write(format("\nAborted previous prompt.", "dim"));
 		}
 
 		if (options.prompt) {
+			this.generateNewRequestData();
 			this.conversation.push({
 				role: "user",
 				content: options.prompt
 			});
-		} else if (process.env.debug == "true") console.log(format("Generating without user prompt.", "dim"));
+		} else if (process.env.debug == "true") process.stdout.write(format("\nGenerating without user prompt.", "dim"));
 
 		let fullResponseContent = "";
 
@@ -132,6 +140,7 @@ class AI extends EventTarget {
 				messages: this.conversation,
 				...options,
 				stream: true,
+				think: "high",
 				tools: this.tools.map((tool) => tool.definition)
 			});
 
@@ -173,7 +182,7 @@ class AI extends EventTarget {
 						this.conversation.push({
 							role: "tool",
 							tool_name: call.function.name,
-							content: await tool.call(call.function.arguments)
+							content: await tool.call(call.function.arguments, this.perRequestData)
 						});
 					} else {
 						if (process.env.debug == "true") console.log(format(`Tool ${call.function.name} does not exist.`, "dim"));
@@ -193,8 +202,19 @@ class AI extends EventTarget {
 
 			if (process.env.debug == "true") process.stdout.write(format("-------------------------\n", "dim"));
 		} catch (error) {
-			if (error.name != "AbortError") throw error;
-			else fullResponse.aborted = true;
+			if (error.name != "AbortError") {
+				if (process.env.debug == "true") console.log(format(`Failed to respond to user: ${error}`, "dim", "yellow"));
+
+				this.conversation.push({
+					role: "assistant",
+					content: `Failed to respond to user: ${error}`
+				}, {
+					role: "user",
+					content: "Réessaye"
+				});
+
+				return await this.generate(options, callback);
+			} else fullResponse.aborted = true;
 		}
 
 		return fullResponse;

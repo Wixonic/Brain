@@ -7,7 +7,7 @@ export type Response = ollama.ChatResponse & {
 export type Tool = {
 	call: (args: {
 		[name: string]: any
-	}) => Promise<string>,
+	}, perRequestData: object) => Promise<string>,
 	definition: ollama.Tool,
 	display: (args: {
 		[name: string]: any
@@ -15,5 +15,5 @@ export type Tool = {
 };
 
 export type GenerateOptions = ollama.ChatRequest & {
-	prompt: string?;
+	prompt: string | undefined;
 };

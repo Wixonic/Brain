@@ -9,7 +9,7 @@ const tool = {
 			return "Mémorisé avec succès";
 		} catch (e) {
 			if (process.env.debug == "true") console.log(format(`Failed to memorize: ${e}`, "dim", "red"));
-			return "Failed to memorize";
+			return "Échec de la mémorisation";
 		}
 	},
 	definition: {
