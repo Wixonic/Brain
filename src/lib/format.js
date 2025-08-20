@@ -1,4 +1,4 @@
-import formats from "./colors.json" with { type: "json" };
+import formats from "./formats.json" with { type: "json" };
 
 export const format = (text, ...options) => {
 	const codes = options.map((option) => {

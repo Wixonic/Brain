@@ -4,7 +4,7 @@ import readline from "readline";
 import ai from "./lib/ai.js";
 import { format } from "./lib/format.js";
 
-import config from "./config.json" with { type: "json" };
+import config from "./config.js";
 
 const main = async () => {
 	if (process.env.debug == "true") console.log(format("Loading database...", "dim"));
@@ -49,7 +49,7 @@ const main = async () => {
 			await Promise.all([
 				ai.unloadModel(config.models.main),
 				ai.unloadEmbedModel(config.models.embeds),
-				ai.unloadModel(config.models.vision)
+				// ai.unloadModel(config.models.vision)
 			]);
 
 			rl.close();

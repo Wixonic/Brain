@@ -1,13 +1,14 @@
 import ai from "../lib/ai.js";
+import { format } from "../lib/format.js";
 
 /** @type {import("../types.d.ts").Tool} */
 const tool = {
 	call: async (args) => {
 		try {
 			const results = await ai.search(args.query);
-			return `Voici des notes qui pourraient vous aider :\n${results.map((document) => `- ${document.text}`).join("\n")}`;
+			return `Résultats de la recherche :\n${results.map((document) => `- ${document.text}`).join("\n")}`;
 		} catch (e) {
-			if (process.env.debug == "true") console.error(`Failed to search in memory: ${e}`);
+			if (process.env.debug == "true") console.log(format(`Failed to search in memory: ${e}`, "dim", "red"));
 			return "Failed to search in memory";
 		}
 	},

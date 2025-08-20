@@ -1,4 +1,5 @@
 import ai from "../lib/ai.js";
+import { format } from "../lib/format.js";
 
 /** @type {import("../types.d.ts").Tool} */
 const tool = {
@@ -7,7 +8,7 @@ const tool = {
 			await ai.memorize(args.text);
 			return "Mémorisé avec succès";
 		} catch (e) {
-			if (process.env.debug == "true") console.error(`Failed to memorize: ${e}`);
+			if (process.env.debug == "true") console.log(format(`Failed to memorize: ${e}`, "dim", "red"));
 			return "Failed to memorize";
 		}
 	},

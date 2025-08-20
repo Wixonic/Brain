@@ -9,7 +9,7 @@ import * as uuid from "uuid";
 
 import { format } from "../lib/format.js";
 
-import config from "../config.json" with { type: "json" };
+import config from "../config.js";
 
 class AI extends EventTarget {
 	constructor() {
