@@ -12,16 +12,18 @@
 	},
 	"main": "main.js",
 	"scripts": {
+		"test": "debug=true node ./main.js",
 		"start": "node ./main.js"
 	},
 	"engines": {
 		"node": "24"
 	},
 	"dependencies": {
-		"@wixonic/logger": "^1.1.0",
-		"ollama": "^0.5.17"
+		"ollama": "^0.5.17",
+		"uuid": "^11.1.0"
 	},
 	"devDependencies": {
 		"@types/node": "^24.3.0"
-	}
+	},
+	"type": "module"
 }
