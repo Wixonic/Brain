@@ -17,8 +17,7 @@ const main = async () => {
 	await ai.loadModel(config.models.main);
 
 	Promise.all([
-		ai.loadEmbedModel(config.models.embeds),
-		// ai.loadModel(config.models.vision)
+		ai.loadEmbedModel(config.models.embeds)
 	]);
 
 	const rl = readline.createInterface({

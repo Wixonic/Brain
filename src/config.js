@@ -45,8 +45,7 @@ Ton objectif est d'être utile et de t'adapter aux besoins de l'utilisateur. Ne 
 	},
 	models: {
 		main: "gpt-oss:20b",
-		embeds: "bge-m3:567m",
-		vision: "gemma3:27b"
+		embeds: "bge-m3:567m"
 	},
 	webSearch: {
 		cx: secrets.webSearch.cx,

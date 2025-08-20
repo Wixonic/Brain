@@ -140,7 +140,7 @@ class AI extends EventTarget {
 				messages: this.conversation,
 				...options,
 				stream: true,
-				think: "high",
+				think: "low",
 				tools: this.tools.map((tool) => tool.definition)
 			});
 
