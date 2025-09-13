@@ -33,9 +33,16 @@ const main = async () => {
 	console.log(format(welcomeMessage, "brightWhite"));
 
 	rl.on("line", async (input) => {
+		let memoryResults = await ai.search(input);
+		if (memoryResults.length > 0) memoryResults = `Résultats de la recherche mémoire :\n${memoryResults.map((document) => `- ${document.text}`).join("\n")}`;
+		else memoryResults = "Aucun résultat de recherche dans la mémoire.";
+
+		if (process.env.debug == "true") console.log(format(`-------------------------\n${memoryResults}`, "dim"));
+
+		const prompt = `${input}\n\n---\n${memoryResults}`;
 		const response = await ai.generate({
 			model: config.models.main,
-			prompt: input
+			prompt
 		}, (chunk) => process.stdout.write(format(chunk, "whiteBright")));
 
 		process.stdout.write("\n");

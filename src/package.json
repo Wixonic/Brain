@@ -21,6 +21,7 @@
 	"dependencies": {
 		"jsdom": "^26.1.0",
 		"ollama": "^0.5.17",
+		"pdf-parse": "^1.1.1",
 		"uuid": "^11.1.0"
 	},
 	"devDependencies": {

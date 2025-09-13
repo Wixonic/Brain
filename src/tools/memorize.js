@@ -6,7 +6,7 @@ const tool = {
 	call: async (args) => {
 		try {
 			await ai.memorize(args.text);
-			return "Mémorisé avec succès";
+			return "Mémorisé dans la mémoire avec succès";
 		} catch (e) {
 			if (process.env.debug == "true") console.log(format(`Failed to memorize: ${e}`, "dim", "red"));
 			return "Échec de la mémorisation";

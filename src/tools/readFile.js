@@ -1,5 +1,6 @@
-import path from "path";
 import fs from "fs/promises";
+import path from "path";
+import pdf from "pdf-parse";
 
 import { format } from "../lib/format.js";
 
@@ -7,9 +8,17 @@ import { format } from "../lib/format.js";
 const tool = {
 	call: async (args) => {
 		try {
-			const content = await fs.readFile(args.path, { encoding: args.encoding ?? "utf-8" });
+			let content = "";
+
+			if (path.extname(args.path).toLowerCase() == ".pdf") {
+				const dataBuffer = await fs.readFile(args.path);
+				const data = await pdf(dataBuffer);
+				content = data.text;
+			} else content = await fs.readFile(args.path, { encoding: args.encoding ?? "utf-8" });
+
 			const start = args.start || 0;
 			const end = Math.min(content.length, args.end || 4096);
+
 			return `Lecture du fichier à "${args.path}".\nPlage: ${start}-${end} (total: ${content.length})\n\nContenu:\n${content.substring(start, end)}.`;
 		} catch (e) {
 			if (process.env.debug == "true") console.log(format(`Failed to read file: ${e}`, "dim", "red"));
@@ -34,7 +43,7 @@ const tool = {
 				properties: {
 					encoding: {
 						type: "string",
-						description: "L'encodage de lecture (défault: utf-8)",
+						description: "L'encodage de lecture (défaut: utf-8)",
 						enum: [
 							"ascii",
 							"base64",
