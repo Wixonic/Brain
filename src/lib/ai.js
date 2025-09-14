@@ -52,7 +52,7 @@ class AI extends EventTarget {
 						new arrow.Field("id", new arrow.Utf8(), false),
 						new arrow.Field("text", new arrow.Utf8(), true),
 						new arrow.Field("vector", new arrow.FixedSizeList(
-							1024,
+							768,
 							new arrow.Field("item", new arrow.Float32())
 						), true)
 					])
@@ -108,7 +108,11 @@ class AI extends EventTarget {
 			prompt: query
 		});
 
-		return await this.table.query(embeddings.embedding).limit(5).toArray();
+		const results = await this.table
+			.search(embeddings.embedding, "vector", "vector")
+			.toArray();
+
+		return results.map((r) => ({ text: r.text, _distance: r._distance })).sort((a, b) => b._distance - a._distance).slice(0, 5);
 	};
 
 	/**
@@ -140,7 +144,6 @@ class AI extends EventTarget {
 				messages: this.conversation,
 				...options,
 				stream: true,
-				think: "low",
 				tools: this.tools.map((tool) => tool.definition)
 			});
 

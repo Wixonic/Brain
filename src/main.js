@@ -34,7 +34,7 @@ const main = async () => {
 
 	rl.on("line", async (input) => {
 		let memoryResults = await ai.search(input);
-		if (memoryResults.length > 0) memoryResults = `Résultats de la recherche mémoire :\n${memoryResults.map((document) => `- ${document.text}`).join("\n")}`;
+		if (memoryResults.length > 0) memoryResults = `Résultats de la recherche mémoire :\n${memoryResults.map((document) => `- Pertinence: ${document._distance}, Contenu: ${document.text}`).join("\n")}`;
 		else memoryResults = "Aucun résultat de recherche dans la mémoire.";
 
 		if (process.env.debug == "true") console.log(format(`-------------------------\n${memoryResults}`, "dim"));

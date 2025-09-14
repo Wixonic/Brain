@@ -6,7 +6,7 @@ const tool = {
 	call: async (args) => {
 		try {
 			const results = await ai.search(args.query);
-			if (results.length > 0) return `Résultats de la recherche mémoire :\n${results.map((document) => `- ${document.text}`).join("\n")}`;
+			if (results.length > 0) results = `Résultats de la recherche mémoire :\n${results.map((document) => `- Pertinence: ${document._distance}, Contenu: ${document.text}`).join("\n")}`;
 			else return "Aucun résultat de recherche dans la mémoire.";
 		} catch (e) {
 			if (process.env.debug == "true") console.log(format(`Failed to search in memory: ${e}`, "dim", "red"));

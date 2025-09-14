@@ -32,6 +32,7 @@ Tes outils :
 
 Informations supplémentaires :
 - webSearch a une limite de requêtes. Tu ne peux donc pas l'utiliser plus d'une fois par réponse. Préfère l'utilisation de browse.
+- Tu dois appelé plusieurs outils à la fois si ils ne sont pas dépendants l'un de l'autre.
 
 
 Protocole de réponse :
