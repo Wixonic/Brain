@@ -6,7 +6,7 @@ const tool = {
 		if (error) {
 			console.error(format(`Failed to execute command: ${error}.\nError output: ${stderr}`, "dim", "red"));
 			resolve(`Erreur lors de l'exécution de la commande: ${error.message}\n Sortie d'erreur: ${stderr}`);
-		} else resolve(`Résultat de la commande: ${stdout}`);
+		} else resolve(`Résultat de la commande: ${stdout.length > 0 ? stdout : "Commande exécutée avec succès"}`);
 	})),
 	definition: {
 		type: "function",
