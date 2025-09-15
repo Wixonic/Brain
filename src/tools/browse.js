@@ -15,7 +15,7 @@ const tool = {
 			const content = document.body.textContent;
 
 			const start = args.start || 0;
-			const end = Math.min(content.length, args.end || 4096);
+			const end = Math.min(content.length, args.end || 16384);
 
 			const links = Array.from(document.querySelectorAll("a")).map((a) => `${a.textContent}: ${a.href}`);
 			return `Page web à ${args.url}\n\nLiens sur la page :\n${links.join("\n")}\n\nPlage: ${start}-${end} (total: ${content.length})\nContenu de la page :\n${content.substring(start, end)}`;
@@ -42,7 +42,7 @@ const tool = {
 					},
 					end: {
 						type: "integer",
-						description: "L'index de fin de la lecture (défaut: 4096)."
+						description: "L'index de fin de la lecture (défaut: 16384)."
 					}
 				},
 				required: ["url"]

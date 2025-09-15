@@ -17,7 +17,7 @@ const tool = {
 			} else content = await fs.readFile(args.path, { encoding: args.encoding ?? "utf-8" });
 
 			const start = args.start || 0;
-			const end = Math.min(content.length, args.end || 4096);
+			const end = Math.min(content.length, args.end || 32768);
 
 			return `Lecture du fichier à "${args.path}".\nPlage: ${start}-${end} (total: ${content.length})\n\nContenu:\n${content.substring(start, end)}.`;
 		} catch (e) {
@@ -63,7 +63,7 @@ const tool = {
 					},
 					end: {
 						type: "integer",
-						description: "L'index de fin de la lecture (défaut: 4096)."
+						description: "L'index de fin de la lecture (défaut: 32768)."
 					}
 				},
 				required: ["path"]

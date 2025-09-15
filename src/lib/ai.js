@@ -144,6 +144,7 @@ class AI extends EventTarget {
 				messages: this.conversation,
 				...options,
 				stream: true,
+				think: "medium",
 				tools: this.tools.map((tool) => tool.definition)
 			});
 
@@ -185,7 +186,7 @@ class AI extends EventTarget {
 						this.conversation.push({
 							role: "tool",
 							tool_name: call.function.name,
-							content: await tool.call(call.function.arguments, this.perRequestData)
+							content: await tool.call(call.function.arguments, this.perRequestData) + "\nMerci de fournir à l'utilisateur un résumé de l'action du tool ainsi que son résultat de manière simplifiée, sauf demande contraire de l'utilisateur."
 						});
 					} else {
 						if (process.env.debug == "true") console.log(format(`Tool ${call.function.name} does not exist.`, "dim"));
@@ -207,6 +208,7 @@ class AI extends EventTarget {
 		} catch (error) {
 			if (error.name != "AbortError") {
 				if (process.env.debug == "true") console.log(format(`Failed to respond to user: ${error}`, "dim", "yellow"));
+				else console.log(format("Failed to respond, retrying...", "dim", "yellow"));
 
 				this.conversation.push({
 					role: "assistant",
