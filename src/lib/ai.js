@@ -109,10 +109,10 @@ class AI extends EventTarget {
 		});
 
 		const results = await this.table
-			.search(embeddings.embedding, "vector", "vector")
+			.search(embeddings.embedding, "vector")
 			.toArray();
 
-		return results.map((r) => ({ text: r.text, _distance: r._distance })).sort((a, b) => b._distance - a._distance).slice(0, 5);
+		return results.map((r) => ({ text: r.text, _distance: r._distance })).sort((a, b) => a._distance - b._distance).slice(0, 10);
 	};
 
 	/**
