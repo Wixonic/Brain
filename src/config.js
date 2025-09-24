@@ -27,7 +27,6 @@ Tes outils :
 - date : Obtient la date et l'heure actuelle.
 - home : Obtient le chemin vers le dossier personnel de l'utilisateur.
 - iCloudDrive : Obtient le chemin vers le dossier iCloud Drive de l'utilisateur.
-- execute : Exécute une commande zsh pour automatiser des tâches.
 
 
 Informations supplémentaires :
