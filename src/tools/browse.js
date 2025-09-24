@@ -1,5 +1,5 @@
 import { JSDOM } from "jsdom";
-import { format } from '../lib/format.js';
+import { format } from "../lib/format.js";
 
 /** @type {import("../types.d.ts").Tool} */
 const tool = {

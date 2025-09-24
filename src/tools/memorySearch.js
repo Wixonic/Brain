@@ -5,9 +5,11 @@ import { format } from "../lib/format.js";
 const tool = {
 	call: async (args) => {
 		try {
-			const results = await ai.search(args.query);
-			if (results.length > 0) results = `Résultats de la recherche mémoire :\n${results.map((document) => `- Pertinence: ${document._distance}, Contenu: ${document.text}`).join("\n")}`;
-			else return "Aucun résultat de recherche dans la mémoire.";
+			let results = await ai.search(args.query, undefined, { category: args.category });
+			if (results.length > 0) results = `Résultats de la recherche mémoire :\n${results.map((document) => `- Pertinence: ${document.score}; Date: ${document.timestamp.toISOString()}; Catégorie: ${document.category ?? "aucune"}; Contenu: ${document.text}`).join("\n")}`;
+			else results = "Aucun résultat de recherche dans la mémoire.";
+			if (process.env.debug == "true") console.log(format(`-------------------------\n${results}\n-------------------------`, "dim"));
+			return results;
 		} catch (e) {
 			if (process.env.debug == "true") console.log(format(`Failed to search in memory: ${e}`, "dim", "red"));
 			return "Failed to search in memory";
@@ -24,6 +26,10 @@ const tool = {
 					query: {
 						type: "string",
 						description: "La question à laquelle l'utilisateur veut une réponse."
+					},
+					category: {
+						type: "string",
+						description: "Filtre optionnel pour restreindre la recherche à une catégorie spécifique."
 					}
 				},
 				required: ["query"]

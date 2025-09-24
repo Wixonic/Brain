@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@lancedb/lancedb": "^0.21.3",
-    "lancedb": "^0.0.1"
-  }
-}

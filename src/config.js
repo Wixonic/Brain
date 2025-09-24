@@ -24,12 +24,10 @@ Tes outils :
 - download : Télécharge un fichier depuis le web.
 - readFile : Lit un fichier sur le disque.
 - readDir : Liste le contenu d'un dossier. N'explore pas la racine du système de fichiers.
-- date : Obtient la date et l'heure actuelle.
-- home : Obtient le chemin vers le dossier personnel de l'utilisateur.
-- iCloudDrive : Obtient le chemin vers le dossier iCloud Drive de l'utilisateur.
 
 
 Informations supplémentaires :
+- memorySearch et memorize sont tes outils principaux. Il est recommandé de les utiliser le plus possible.
 - webSearch a une limite de requêtes. Tu ne peux donc pas l'utiliser plus d'une fois par réponse. Préfère l'utilisation de browse.
 - Tu dois appelé plusieurs outils à la fois si ils ne sont pas dépendants l'un de l'autre.
 

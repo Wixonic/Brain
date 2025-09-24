@@ -5,7 +5,7 @@ import { format } from "../lib/format.js";
 const tool = {
 	call: async (args) => {
 		try {
-			await ai.memorize(args.text);
+			await ai.memorize(args.text, { category: args.category });
 			return "Mémorisé dans la mémoire avec succès";
 		} catch (e) {
 			if (process.env.debug == "true") console.log(format(`Failed to memorize: ${e}`, "dim", "red"));
@@ -23,6 +23,10 @@ const tool = {
 					text: {
 						type: "string",
 						description: "La note complète à mémoriser, contenant tous les détails, mais synthétique."
+					},
+					category: {
+						type: "string",
+						description: "Filtre optionnel pour restreindre la recherche à une catégorie spécifique."
 					}
 				},
 				required: ["text"]

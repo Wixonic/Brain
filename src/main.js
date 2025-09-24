@@ -33,11 +33,11 @@ const main = async () => {
 	console.log(format(welcomeMessage, "brightWhite"));
 
 	rl.on("line", async (input) => {
-		let memoryResults = await ai.search(input);
-		if (memoryResults.length > 0) memoryResults = `Résultats de la recherche mémoire :\n${memoryResults.map((document) => `- Pertinence: ${document._distance}, Contenu: ${document.text}`).join("\n")}`;
+		let memoryResults = await ai.search(input, 5);
+		if (memoryResults.length > 0) memoryResults = `Résultats de la recherche mémoire partielle (utiliser l'outil pour en savoir plus) :\n${memoryResults.map((document) => `- Pertinence: ${document.score}; Date: ${document.timestamp.toISOString()}; Catégorie: ${document.category ?? "aucune"}; Contenu: ${document.text}`).join("\n")}`;
 		else memoryResults = "Aucun résultat de recherche dans la mémoire.";
 
-		if (process.env.debug == "true") console.log(format(`-------------------------\n${memoryResults}`, "dim"));
+		if (process.env.debug == "true") console.log(format(`-------------------------\n${memoryResults}\n-------------------------`, "dim"));
 
 		const prompt = `${input}\n\n---\n${memoryResults}`;
 		const response = await ai.generate({
