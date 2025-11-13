@@ -34,7 +34,7 @@ const main = async () => {
 
 	rl.on("line", async (input) => {
 		let memoryResults = await ai.search(input, 5);
-		if (memoryResults.length > 0) memoryResults = `Résultats de la recherche mémoire partielle (utiliser l'outil pour en savoir plus) :\n${memoryResults.map((document) => `- Pertinence: ${document.score}; Date: ${document.timestamp.toISOString()}; Catégorie: ${document.category ?? "aucune"}; Contenu: ${document.text}`).join("\n")}`;
+		if (memoryResults.length > 0) memoryResults = `Résultats de la recherche mémoire partielle (utiliser l'outil pour en savoir plus) :\n${memoryResults.map((document) => `- Risque: ${document.risk}; Date: ${document.timestamp.toISOString()}; Catégorie: ${document.category ?? "aucune"}; Contenu: ${document.text}`).join("\n")}`;
 		else memoryResults = "Aucun résultat de recherche dans la mémoire.";
 
 		if (process.env.debug == "true") console.log(format(`-------------------------\n${memoryResults}\n-------------------------`, "dim"));

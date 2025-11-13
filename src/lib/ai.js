@@ -151,7 +151,7 @@ class AI extends EventTarget {
 		}
 
 		const allResults = [...sessionResults, ...results];
-		allResults.sort((a, b) => b._distance - a._distance);
+		allResults.sort((a, b) => a._distance - b._distance);
 
 		const finalResults = allResults.slice(0, count);
 
@@ -159,7 +159,7 @@ class AI extends EventTarget {
 			text: result.text,
 			category: result.category,
 			timestamp: new Date(result.timestamp),
-			score: `${Math.floor(result._distance * 1000)}`
+			risk: `${Math.floor(result._distance * 1000)}`
 		}));
 	};
 

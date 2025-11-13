@@ -6,7 +6,7 @@ const tool = {
 	call: async (rl, args) => {
 		try {
 			let results = await ai.search(args.query, undefined, { category: args.category });
-			if (results.length > 0) results = `Résultats de la recherche mémoire :\n${results.map((document) => `- Pertinence: ${document.score}; Date: ${document.timestamp.toISOString()}; Catégorie: ${document.category ?? "aucune"}; Contenu: ${document.text}`).join("\n")}`;
+			if (results.length > 0) results = `Résultats de la recherche mémoire :\n${results.map((document) => `- Risque: ${document.risk}; Date: ${document.timestamp.toISOString()}; Catégorie: ${document.category ?? "aucune"}; Contenu: ${document.text}`).join("\n")}`;
 			else results = "Aucun résultat de recherche dans la mémoire.";
 			if (process.env.debug == "true") console.log(format(`-------------------------\n${results}\n-------------------------`, "dim"));
 			return results;
