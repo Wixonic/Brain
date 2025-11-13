@@ -4,7 +4,7 @@ import config from "../config.js";
 
 /** @type {import("../types.d.ts").Tool} */
 const tool = {
-	call: async (args, perRequestData) => {
+	call: async (rl, args, perRequestData) => {
 		if (perRequestData.webSearch.requests >= 3) return "Trop de requêtes sur Google. L'outil n'est plus utilisable pour l'instant.";
 		else typeof perRequestData.webSearch.requests == "number" ? perRequestData.webSearch.requests++ : perRequestData.webSearch.requests = 1;
 

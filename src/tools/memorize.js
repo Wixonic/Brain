@@ -3,7 +3,7 @@ import { format } from "../lib/format.js";
 
 /** @type {import("../types.d.ts").Tool} */
 const tool = {
-	call: async (args) => {
+	call: async (rl, args) => {
 		try {
 			await ai.memorize(args.text, { category: args.category });
 			return "Mémorisé dans la mémoire avec succès";

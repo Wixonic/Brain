@@ -151,7 +151,7 @@ class AI extends EventTarget {
 		}
 
 		const allResults = [...sessionResults, ...results];
-		allResults.sort((a, b) => a._distance - b._distance);
+		allResults.sort((a, b) => b._distance - a._distance);
 
 		const finalResults = allResults.slice(0, count);
 
@@ -159,7 +159,7 @@ class AI extends EventTarget {
 			text: result.text,
 			category: result.category,
 			timestamp: new Date(result.timestamp),
-			score: `${Math.floor(result._distance * 100)}%`
+			score: `${Math.floor(result._distance * 1000)}`
 		}));
 	};
 
@@ -192,7 +192,7 @@ class AI extends EventTarget {
 				messages: this.conversation,
 				...options,
 				stream: true,
-				think: "medium",
+				think: "high",
 				tools: this.tools.map((tool) => tool.definition)
 			});
 
@@ -234,7 +234,7 @@ class AI extends EventTarget {
 						this.conversation.push({
 							role: "tool",
 							tool_name: call.function.name,
-							content: await tool.call(call.function.arguments, this.perRequestData) + "\nMerci de fournir à l'utilisateur un résumé de l'action du tool ainsi que son résultat de manière simplifiée, sauf demande contraire de l'utilisateur."
+							content: await tool.call(options.rl, call.function.arguments, this.perRequestData) + "\nMerci de fournir à l'utilisateur un résumé de l'action du tool ainsi que son résultat de manière simplifiée, sauf demande contraire de l'utilisateur."
 						});
 					} else {
 						if (process.env.debug == "true") console.log(format(`Tool ${call.function.name} does not exist.`, "dim"));

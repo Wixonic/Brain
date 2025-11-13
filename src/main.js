@@ -42,7 +42,8 @@ const main = async () => {
 		const prompt = `${input}\n\n---\n${memoryResults}`;
 		const response = await ai.generate({
 			model: config.models.main,
-			prompt
+			prompt,
+			rl
 		}, (chunk) => process.stdout.write(format(chunk, "whiteBright")));
 
 		process.stdout.write("\n");

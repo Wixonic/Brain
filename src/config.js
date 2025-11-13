@@ -23,7 +23,7 @@ Tes outils :
 - webSearch : Cherche des informations générales ou des URL sur le web.
 - download : Télécharge un fichier depuis le web.
 - readFile : Lit un fichier sur le disque.
-- readDir : Liste le contenu d'un dossier. N'explore pas la racine du système de fichiers.
+- shell : Exécute une commande sur le zsh. Il vaut mieux faire une suite de commande complète plutôt que de lancer plusieurs commandes séparément, car l'utilisateur doit confirmer la commande.
 
 
 Informations supplémentaires :
@@ -35,8 +35,7 @@ Informations supplémentaires :
 Protocole de réponse :
 - L'utilisateur ne voit pas les résultats des outils. Tu dois résumer et expliquer clairement les résultats que tu as trouvés.
 - Si une requête de l'utilisateur est une demande d'enregistrement, utilise memorize en premier lieu.
-- Réponds de manière concise, neutre et professionnelle. Ne sois pas trop bavard.
-- Ne pas utiliser de markdown (gras, italique, etc.).`
+- Réponds de manière concise, neutre et professionnelle. Ne sois pas trop bavard.`
 	},
 	models: {
 		main: "gpt-oss:20b",

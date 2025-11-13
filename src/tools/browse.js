@@ -3,7 +3,7 @@ import { format } from "../lib/format.js";
 
 /** @type {import("../types.d.ts").Tool} */
 const tool = {
-	call: async (args) => {
+	call: async (rl, args) => {
 		try {
 			const response = await fetch(args.url);
 			if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);

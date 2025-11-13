@@ -3,7 +3,7 @@ import { format } from "../lib/format.js";
 
 /** @type {import("../types.d.ts").Tool} */
 const tool = {
-	call: async (args) => {
+	call: async (rl, args) => {
 		try {
 			let results = await ai.search(args.query, undefined, { category: args.category });
 			if (results.length > 0) results = `Résultats de la recherche mémoire :\n${results.map((document) => `- Pertinence: ${document.score}; Date: ${document.timestamp.toISOString()}; Catégorie: ${document.category ?? "aucune"}; Contenu: ${document.text}`).join("\n")}`;
