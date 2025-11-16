@@ -37,7 +37,7 @@ const tool = {
 		type: "function",
 		function: {
 			name: "readFile",
-			description: "Lit un fichier sur le disque.",
+			description: "Lit un fichier (texte ou PDF) sur le disque.",
 			parameters: {
 				type: "object",
 				properties: {

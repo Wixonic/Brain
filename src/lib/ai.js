@@ -1,7 +1,7 @@
 import * as arrow from "apache-arrow";
 import fs from "fs/promises";
 import lancedb from "@lancedb/lancedb";
-import { Ollama } from "ollama";
+import { OpenAI } from "openai";
 import os from "os";
 import path from "path";
 import url from "url";
@@ -14,16 +14,19 @@ import config from "../config.js";
 class AI extends EventTarget {
 	constructor() {
 		super();
-		this.ollama = new Ollama();
+		this.client = new OpenAI({
+			apiKey: "no-api-key-required",
+			baseURL: "http://localhost:1234/v1"
+		});
 
-		/** @type {import("ollama").Message[]} */
+		/** @type {import("openai/resources/index.js").ChatCompletionMessageParam[]} */
 		this.conversation = [{
 			role: "system",
 			content: config.prompts.system
 		}];
 
-		/** @type {import("ollama").AbortableAsyncIterator?} */
-		this.currentStream = null;
+		/** @type {AbortController | null} */
+		this.currentStreamController = null;
 
 		/** @type {import("../types.d.ts").Tool[]} */
 		this.tools = [];
@@ -51,7 +54,7 @@ class AI extends EventTarget {
 		const schema = new arrow.Schema([
 			new arrow.Field("id", new arrow.Utf8(), false),
 			new arrow.Field("vector", new arrow.FixedSizeList(
-				768,
+				192,
 				new arrow.Field("item", new arrow.Float32())
 			), false),
 			new arrow.Field("timestamp", new arrow.TimestampMillisecond(), false),
@@ -106,17 +109,19 @@ class AI extends EventTarget {
 	 * @returns {Promise<void>}
 	 */
 	async memorize(text, metadata = {}, options = { persistent: true }) {
-		const embeddings = await this.ollama.embeddings({
+		const response = await this.client.embeddings.create({
 			model: config.models.embeds,
-			prompt: text
+			input: text
 		});
+
+		const embeddings = response.data[0].embedding;
 
 		await this[options.persistent ? "table" : "sessionTable"].add([{
 			id: uuid.v4(),
 			text,
 			category: metadata.category || null,
 			timestamp: Date.now(),
-			vector: embeddings.embedding
+			vector: embeddings
 		}]);
 	};
 
@@ -127,10 +132,12 @@ class AI extends EventTarget {
 	 * @returns {Promise<Array<object>>}
 	 */
 	async search(query, count = 25, filters = {}, options = { from: "all" }) {
-		const embeddings = await this.ollama.embeddings({
+		const response = await this.client.embeddings.create({
 			model: config.models.embeds,
-			prompt: query
+			input: query
 		});
+
+		const embeddings = response.data[0].embedding;
 
 		const whereClause = Object.entries(filters)
 			.map(([key, value]) => `${key} = '${value}'`)
@@ -138,14 +145,14 @@ class AI extends EventTarget {
 
 		let sessionResults = [];
 		if (options.from === "session" || options.from == "all") {
-			let search = this.sessionTable.search(embeddings.embedding, "vector");
+			let search = this.sessionTable.search(embeddings, "vector");
 			if (whereClause) search = search.where(whereClause);
 			sessionResults = await search.limit(count).toArray();
 		}
 
 		let results = [];
 		if (options.from == "default" || options.from == "all") {
-			let search = this.table.search(embeddings.embedding, "vector");
+			let search = this.table.search(embeddings, "vector");
 			if (whereClause) search = search.where(whereClause);
 			results = await search.limit(count).toArray();
 		}
@@ -169,8 +176,8 @@ class AI extends EventTarget {
 	 * @returns {Promise<import("../types.d.ts").Response>}
 	 */
 	async generate(options, callback) {
-		if (this.currentStream) {
-			this.currentStream.abort();
+		if (this.currentStreamController) {
+			this.currentStreamController.abort();
 			if (process.env.debug == "true") process.stdout.write(format("\nAborted previous prompt.", "dim"));
 		}
 
@@ -183,44 +190,75 @@ class AI extends EventTarget {
 		} else if (process.env.debug == "true") process.stdout.write(format("\nGenerating without user prompt.\n", "dim"));
 
 		let fullResponseContent = "";
+		let toolCalls = [];
 
 		/** @type {import("../types.d.ts").Response} */
 		let fullResponse = {};
 
+		const controller = new AbortController();
+		this.currentStreamController = controller;
+
 		try {
-			const response = await this.ollama.chat({
+			const responseStream = await this.client.chat.completions.create({
+				model: options.model,
 				messages: this.conversation,
-				...options,
 				stream: true,
-				think: "high",
-				tools: this.tools.map((tool) => tool.definition)
+				temperature: options.temperature,
+				stop: options.stop,
+				tools: this.tools.map((tool) => tool.definition),
+				signal: controller.signal
 			});
 
-			this.currentStream = response;
-
-			for await (const part of response) {
-				fullResponseContent += part.message.content;
-				if (typeof callback == "function") callback(part.message.content);
-
-				if (part.done) {
-					fullResponse = part;
-					fullResponse.aborted = false;
-					fullResponse.message.content = fullResponseContent;
-
-					if (process.env.debug == "true") {
-						console.log(format("\n-------------------------", "dim"));
-						console.log(format(`Answered in ${(fullResponse.total_duration / 1e9).toFixed(2)}s`, "dim"));
-						console.log(format(`In: ${(fullResponse.prompt_eval_count / fullResponse.prompt_eval_duration * 1e9).toFixed(1)}t/s - Out: ${(fullResponse.eval_count / fullResponse.eval_duration * 1e9).toFixed(1)}t/s`, "dim"));
+			for await (const part of responseStream) {
+				const delta = part.choices[0].delta;
+				if (delta.content) {
+					fullResponseContent += delta.content;
+					if (typeof callback == "function") callback(delta.content);
+				}
+				if (delta.tool_calls) {
+					// Logic to aggregate tool calls from stream chunks
+					for (const tool_call_chunk of delta.tool_calls) {
+						if (toolCalls[tool_call_chunk.index]) {
+							toolCalls[tool_call_chunk.index].function.arguments += tool_call_chunk.function.arguments;
+						} else {
+							toolCalls[tool_call_chunk.index] = tool_call_chunk;
+						}
 					}
+				}
+			}
+
+			this.currentStreamController = null;
+
+			// Fallback to non-streaming if content is empty but tool calls might exist
+			if (!fullResponseContent && (toolCalls.length > 0 || this.conversation.length > 0 && this.conversation[this.conversation.length - 1].role === 'user')) {
+				const finalResponse = await this.client.chat.completions.create({
+					model: options.model,
+					messages: this.conversation,
+					stream: false,
+					temperature: options.temperature,
+					stop: options.stop,
+					tools: this.tools.map((tool) => tool.definition),
+				});
+
+				fullResponse = {
+					message: finalResponse.choices[0].message,
+					aborted: false
+				};
+				fullResponseContent = fullResponse.message.content || "";
+				toolCalls = fullResponse.message.tool_calls || [];
+
+			} else {
+				fullResponse = {
+					message: {
+						role: "assistant",
+						content: fullResponseContent,
+						tool_calls: toolCalls
+					},
+					aborted: false
 				};
 			}
 
-			this.currentStream = null;
-
-			this.conversation.push({
-				role: "assistant",
-				content: fullResponse.message.content
-			});
+			this.conversation.push(fullResponse.message);
 
 			if (fullResponse.message.tool_calls?.length > 0) {
 				if (process.env.debug == "true") console.log(format(`Calling ${fullResponse.message.tool_calls.length} tool${fullResponse.message.tool_calls.length > 1 ? "s" : ""}.`, "dim"));
@@ -229,19 +267,21 @@ class AI extends EventTarget {
 					const tool = this.tools.find((tool) => tool.definition.function.name == call.function.name);
 
 					if (tool) {
-						console.log(format(tool.display(call.function.arguments), "dim"));
+						console.log(format(tool.display(JSON.parse(call.function.arguments)), "dim"));
+
+						const toolResult = await tool.call(options.rl, JSON.parse(call.function.arguments), this.perRequestData);
 
 						this.conversation.push({
 							role: "tool",
-							tool_name: call.function.name,
-							content: await tool.call(options.rl, call.function.arguments, this.perRequestData) + "\nMerci de fournir à l'utilisateur un résumé de l'action du tool ainsi que son résultat de manière simplifiée, sauf demande contraire de l'utilisateur."
+							tool_call_id: call.id,
+							content: toolResult + "\nMerci de fournir à l'utilisateur un résumé de l'action du tool ainsi que son résultat de manière simplifiée, sauf demande contraire de l'utilisateur."
 						});
 					} else {
 						if (process.env.debug == "true") console.log(format(`Tool ${call.function.name} does not exist.`, "dim"));
 						this.conversation.push({
 							role: "tool",
-							tool_name: call.function.name,
-							content: "This tool doesn't exists"
+							tool_call_id: call.id,
+							content: "This tool doesn't exist"
 						});
 					}
 				}
@@ -251,8 +291,6 @@ class AI extends EventTarget {
 				delete options.prompt;
 				return await this.generate(options, callback);
 			}
-
-			if (process.env.debug == "true") process.stdout.write(format("-------------------------\n", "dim"));
 		} catch (error) {
 			if (error.name != "AbortError") {
 				if (process.env.debug == "true") console.log(format(`Failed to respond to user: ${error}`, "dim", "yellow"));
@@ -267,50 +305,20 @@ class AI extends EventTarget {
 				});
 
 				return await this.generate(options, callback);
-			} else fullResponse.aborted = true;
+			} else {
+				fullResponse = { ...fullResponse, aborted: true };
+			}
 		}
 
 		return fullResponse;
 	};
 
 	abort() {
-		if (this.currentStream) {
-			this.currentStream.abort();
-			this.currentStream = null;
+		if (this.currentStreamController) {
+			this.currentStreamController.abort();
+			this.currentStreamController = null;
 			return true;
 		} else return false;
-	};
-
-	/** @param {string} name */
-	async loadModel(name) {
-		await this.ollama.generate({
-			model: name,
-			keep_alive: -1
-		});
-	};
-
-	/** @param {string} name */
-	async loadEmbedModel(name) {
-		await this.ollama.embeddings({
-			model: name,
-			keep_alive: -1
-		});
-	};
-
-	/** @param {string} name */
-	async unloadModel(name) {
-		await this.ollama.generate({
-			model: name,
-			keep_alive: 0
-		});
-	};
-
-	/** @param {string} name */
-	async unloadEmbedModel(name) {
-		await this.ollama.embeddings({
-			model: name,
-			keep_alive: 0
-		});
 	};
 };
 

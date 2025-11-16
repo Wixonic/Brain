@@ -1,7 +1,11 @@
-import * as ollama from "ollama";
+import type * as openai from "openai";
 
-export type Response = ollama.ChatResponse & {
-	aborted: boolean
+type OpenAIMessage = openai.ChatCompletionMessageParam;
+
+export type Response = (openai.ChatCompletion | {
+	message: openai.ChatCompletionMessage;
+}) & {
+	aborted: boolean;
 };
 
 export type Tool = {
@@ -13,13 +17,15 @@ export type Tool = {
 		perRequestData: object
 	) => Promise<string>,
 
-	definition: ollama.Tool,
+	definition: openai.FunctionDefinition,
 	display: (args: {
 		[name: string]: any
 	}) => string
 };
 
-export type GenerateOptions = ollama.ChatRequest & {
+export type GenerateOptions = Omit<openai.ChatCompletionCreateParams, 'messages' | 'stream'> & {
 	prompt: string | undefined;
 	rl: import("readline").Interface
+
+	model: string;
 };

@@ -16,17 +16,17 @@ const tool = {
 		type: "function",
 		function: {
 			name: "memorize",
-			description: "Mémorise une note ou un fait.",
+			description: "Utilise cette fonction pour enregistrer et mémoriser de manière permanente une information textuelle fournie par l'utilisateur. Indispensable pour toute demande de mémorisation.",
 			parameters: {
 				type: "object",
 				properties: {
 					text: {
 						type: "string",
-						description: "La note complète à mémoriser, contenant tous les détails, mais synthétique."
+						description: "Le texte ou l'information à mémoriser."
 					},
 					category: {
 						type: "string",
-						description: "Filtre optionnel pour restreindre la recherche à une catégorie spécifique."
+						description: "Catégorie optionnelle pour classer ou organiser l'information mémorisée."
 					}
 				},
 				required: ["text"]

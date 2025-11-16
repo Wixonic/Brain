@@ -21,7 +21,7 @@
 	"dependencies": {
 		"@lancedb/lancedb": "^0.22.1",
 		"jsdom": "^26.1.0",
-		"ollama": "^0.5.17",
+		"openai": "^6.9.0",
 		"pdf-parse": "^1.1.1",
 		"uuid": "^11.1.0"
 	},

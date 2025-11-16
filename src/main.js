@@ -13,13 +13,6 @@ const main = async () => {
 	if (process.env.debug == "true") console.log(format("Loading tools...", "dim"));
 	await ai.loadTools();
 
-	if (process.env.debug == "true") console.log(format("Loading main model...", "dim"));
-	await ai.loadModel(config.models.main);
-
-	Promise.all([
-		ai.loadEmbedModel(config.models.embeds)
-	]);
-
 	const rl = readline.createInterface({
 		input: process.stdin,
 		output: process.stdout
@@ -52,15 +45,7 @@ const main = async () => {
 	});
 
 	rl.on("SIGINT", async () => {
-		if (!ai.abort()) {
-			await Promise.all([
-				ai.unloadModel(config.models.main),
-				ai.unloadEmbedModel(config.models.embeds),
-				// ai.unloadModel(config.models.vision)
-			]);
-
-			rl.close();
-		}
+		if (!ai.abort()) rl.close();
 	});
 
 	rl.prompt();
